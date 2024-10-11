@@ -1,4 +1,3 @@
-
 const mario = document.querySelector('.mario')
 const pipe = document.querySelector('.pipe')
 const start = document.querySelector('.start')
@@ -9,6 +8,8 @@ const audioStart = new Audio('./sound/audio_theme.mp3')
 const audioGameOver = new Audio('./sound/audio_gameover.mp3')
 
 let loop;
+let speed = 10; // Inicial speed
+let speedIncreaseInterval;
 
 const startGame = () => {
     pipe.classList.add('pipe-animation')
@@ -16,12 +17,11 @@ const startGame = () => {
 
     audioStart.play()
 
-
-    loop = setInterval(gameLoop, 10)
+    loop = setInterval(gameLoop, speed)
+    speedIncreaseInterval = setInterval(increaseSpeed, 5000)
 }
 
 const restartGame = () => {
-
     gameOver.style.display = 'none'
     pipe.style.left = ''
     pipe.style.right = '0'
@@ -38,7 +38,10 @@ const restartGame = () => {
 
     pipe.classList.add('pipe-animation')
 
-    loop = setInterval(gameLoop, 10)
+    speed = 10; // Reset speed
+    clearInterval(speedIncreaseInterval);
+    speedIncreaseInterval = setInterval(increaseSpeed, 5000);
+    loop = setInterval(gameLoop, speed)
 }
 
 const jump = () => {
@@ -56,31 +59,32 @@ const gameLoop = () => {
         .bottom.replace('px', '')
 
     if (pipePosition <= 120 && pipePosition > 0 && marioPosition < 80) {
-
         pipe.classList.remove('pipe-animation')
         pipe.style.left = `${pipePosition}px`
-
 
         mario.classList.remove('jump')
         mario.style.bottom = `${marioPosition}px`
 
-
         mario.src = './img/game-over.png'
         mario.style.width = '80px'
         mario.style.marginLeft = '50px'
-
 
         audioStart.pause()
         audioStart.currentTime = 0
 
         audioGameOver.play()
 
-
         gameOver.style.display = 'flex'
 
-
         clearInterval(loop)
+        clearInterval(speedIncreaseInterval)
     }
+}
+
+const increaseSpeed = () => {
+    speed = Math.max(1, speed - 1);
+    clearInterval(loop);
+    loop = setInterval(gameLoop, speed);
 }
 
 document.addEventListener('keypress', e => {
@@ -100,6 +104,5 @@ document.addEventListener('keypress', e => {
         startGame()
     }
 })
-
 
 restartButton.addEventListener('click', restartGame)
